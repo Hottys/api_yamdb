@@ -1,8 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from api_yamdb.settings import LETTERS_IN_STR
+
 User = get_user_model()
-LETTERS_IN_STR = 10
+
 
 class Genre(models.Model):
     name = models.CharField(max_length=256)
