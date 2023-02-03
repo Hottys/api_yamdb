@@ -1,14 +1,8 @@
-from reviews.models import Genre, Title, Category, User
+import datetime
+
 from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
-from rest_framework.validators import UniqueTogetherValidator
-
-
-class TtileSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = '__all__'
-        model = Title
+from reviews.models import (Category, Comment, Genre, GenreTitle, Review,
+                            Title, User)
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -72,7 +66,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             return data
 
         title_id = self.context['view'].kwargs.get('title_id')
-        author = self.context['reqiest'].user
+        author = self.context['request'].user
         if Review.objects.filter(author=author, titlle=title_id).exists():
             raise serializers.ValidationError(
                 'К каждому произведению вы можете написать только 1 отзыв!')
@@ -82,3 +76,14 @@ class ReviewSerializer(serializers.ModelSerializer):
         if not 1 <= value <= 10:
             raise serializers.ValidationError('Оценка должна быть от 1 до 10!')
         return value
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username', read_only=True,
+        default=serializers.CurrentUserDefault()
+    )
+
+    class Meta:
+        models = Comment
+        fields = ('id', 'text', 'author', 'pub_date')
