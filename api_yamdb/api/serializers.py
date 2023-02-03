@@ -1,14 +1,8 @@
-from reviews.models import Genre, Title, Category, User
+import datetime
+
 from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
-from rest_framework.validators import UniqueTogetherValidator
 
-
-class TtileSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = '__all__'
-        model = Title
+from reviews.models import Category, Genre, GenreTitle, Review, Title, User
 
 
 class GenreSerializer(serializers.ModelSerializer):
