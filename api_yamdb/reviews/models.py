@@ -90,7 +90,6 @@ class Category(models.Model):
 
 
 class Title(models.Model):
-    '''Поле rating временно опущено.'''
     name = models.CharField(max_length=256)
     year = models.IntegerField()
     description = models.TextField()
@@ -139,7 +138,7 @@ class Review(models.Model):
         ordering = ('-pub_date',)
         constraints = [
             models.UniqueConstraint(
-                fields=('text', 'author',),
+                fields=('title', 'author',),
                 name='unique_review'
             )
         ]

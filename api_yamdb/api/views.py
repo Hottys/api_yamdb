@@ -12,9 +12,10 @@ from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.exceptions import ValidationError
 from reviews.models import Category, Genre, Review, Title, User
 
+from .filters import TitleFilter
 from .mixins import CreateListDestroyViewSet, NoPutViewSet
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleSerializer,
+                          GenreSerializer, ReviewSerializer, TitleCreateSerializer, TitleSerializer,
                           RegisterDataSerializer, TokenSerializer,
                           UserEditSerializer, UserSerializer)
 from .permissions import (AdminOnly, AdminOrReadOnly, IsAuthorOrModerOrAdmin)
@@ -27,6 +28,12 @@ class TitleViewSet(NoPutViewSet):
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('category', 'genre', 'name', 'year',)
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.request.method in ('POST', 'PATCH',):
+            return TitleCreateSerializer
+        return TitleSerializer
 
 
 class GenreViewSet(CreateListDestroyViewSet):
@@ -36,6 +43,7 @@ class GenreViewSet(CreateListDestroyViewSet):
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    lookup_field = ('slug')
 
 
 class CategoryViewSet(CreateListDestroyViewSet):
@@ -45,6 +53,7 @@ class CategoryViewSet(CreateListDestroyViewSet):
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    lookup_field = ('slug')
 
 
 class ReviewViewSet(NoPutViewSet):
@@ -64,8 +73,9 @@ class ReviewViewSet(NoPutViewSet):
 
 class CommentViewSet(NoPutViewSet):
     serializer_class = CommentSerializer
+    permission_classes = (IsAuthorOrModerOrAdmin,)
 
-    def get_queryset(self, serializer):
+    def get_queryset(self):
         review_id = self.kwargs.get('review_id')
         review = get_object_or_404(Review, id=review_id)
         return review.comments.all()
