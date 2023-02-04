@@ -36,7 +36,7 @@ class CategoryViewSet(CreateListDestroyViewSet):
     search_fields = ('name',)
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
+class ReviewViewSet(NoPutViewSet):
     serializer_class = ReviewSerializer
     permission_classes = ()
 
@@ -51,10 +51,15 @@ class ReviewViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, title=title)
 
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(NoPutViewSet):
     serializer_class = CommentSerializer
 
     def get_queryset(self, serializer):
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id)
+        return review.comments.all()
+
+    def perform_create(self, serializer):
         review_id = self.kwargs.get('review_id')
         review = get_object_or_404(Review, id=review_id)
         serializer.save(author=self.request.user, review=review)
