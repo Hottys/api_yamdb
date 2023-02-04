@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         file_path = options['path']
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding="utf-8") as f:
             reader = csv.reader(f)
             next(reader)
             for row in reader:
@@ -21,6 +21,6 @@ class Command(BaseCommand):
                     id = row[0],
                     review_id = row[1],
                     text = row[2],
-                    author = row[3],
+                    author_id = row[3],
                     pub_date = row[4],
                 )
