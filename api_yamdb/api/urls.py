@@ -8,5 +8,5 @@ v1_router.register(r'titles', TitleViewSet)
 v1_router.register(r'genres', GenreViewSet)
 v1_router.register(r'categories', CategoryViewSet)
 urlpatterns = [
-    path('', include(v1_router.urls)),
+    path('v1/', include(v1_router.urls)),
 ]
