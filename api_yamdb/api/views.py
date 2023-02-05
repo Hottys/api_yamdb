@@ -1,23 +1,26 @@
 from django.contrib.auth.tokens import default_token_generator
-from django_filters.rest_framework import DjangoFilterBackend
 from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404
 from django.db.utils import IntegrityError
-from rest_framework import filters, status
-from rest_framework.decorators import api_view, action
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, permissions, status
+from rest_framework.decorators import action, api_view
+from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework.exceptions import ValidationError
+
 from reviews.models import Category, Genre, Review, Title, User
 
+from .filters import TitleFilter
 from .mixins import CreateListDestroyViewSet, NoPutViewSet
+from .permissions import AdminOnly, AdminOrReadOnly, IsAuthorOrModerOrAdmin
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleSerializer,
-                          RegisterDataSerializer, TokenSerializer,
-                          UserEditSerializer, UserSerializer)
-from .permissions import (AdminOnly, AdminOrReadOnly, IsAuthorOrModerOrAdmin)
+                          GenreSerializer, RegisterDataSerializer,
+                          ReviewSerializer, TitleCreateSerializer,
+                          TitleSerializer, TokenSerializer, UserEditSerializer,
+                          UserSerializer)
 
 
 class TitleViewSet(NoPutViewSet):
@@ -27,6 +30,12 @@ class TitleViewSet(NoPutViewSet):
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('category', 'genre', 'name', 'year',)
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return TitleSerializer
+        return TitleCreateSerializer
 
 
 class GenreViewSet(CreateListDestroyViewSet):
@@ -36,6 +45,7 @@ class GenreViewSet(CreateListDestroyViewSet):
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    lookup_field = ('slug')
 
 
 class CategoryViewSet(CreateListDestroyViewSet):
@@ -45,11 +55,13 @@ class CategoryViewSet(CreateListDestroyViewSet):
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    lookup_field = ('slug')
 
 
 class ReviewViewSet(NoPutViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthorOrModerOrAdmin,)
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')
@@ -64,8 +76,10 @@ class ReviewViewSet(NoPutViewSet):
 
 class CommentViewSet(NoPutViewSet):
     serializer_class = CommentSerializer
+    permission_classes = (IsAuthorOrModerOrAdmin,)
+    pagination_class = LimitOffsetPagination
 
-    def get_queryset(self, serializer):
+    def get_queryset(self):
         review_id = self.kwargs.get('review_id')
         review = get_object_or_404(Review, id=review_id)
         return review.comments.all()

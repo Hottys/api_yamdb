@@ -18,7 +18,7 @@ class Command(BaseCommand):
             next(reader)
             for row in reader:
                 GenreTitle.objects.create(
-                    id = row[0],
-                    title_id = row[1],
-                    genre_id = row[2],
+                    id=row[0],
+                    title_id=row[1],
+                    genre_id=row[2],
                 )

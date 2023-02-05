@@ -18,9 +18,9 @@ class Command(BaseCommand):
             next(reader)
             for row in reader:
                 Comment.objects.create(
-                    id = row[0],
-                    review_id = row[1],
-                    text = row[2],
-                    author_id = row[3],
-                    pub_date = row[4],
+                    id=row[0],
+                    review_id=row[1],
+                    text=row[2],
+                    author_id=row[3],
+                    pub_date=row[4],
                 )

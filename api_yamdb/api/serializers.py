@@ -1,6 +1,7 @@
 import datetime
 
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from reviews.models import (Category, Comment, Genre, GenreTitle, Review,
@@ -14,20 +15,50 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
 
 
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('name', 'slug',)
+        model = Category
+
+
+class TitleCreateSerializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Category.objects.all(),
+    )
+    genre = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Genre.objects.all(), many=True
+    )
+
+    class Meta:
+        model = Title
+        fields = (
+            'id', 'name', 'year', 'description', 'genre', 'category'
+        )
+
+    def validate_year(self, value):
+        year = datetime.date.today().year
+        if not value <= year:
+            raise serializers.ValidationError('Проверьте год выпуска!')
+        return value
+
+
 class TitleSerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
     genre = GenreSerializer(many=True, required=False)
     rating = serializers.SerializerMethodField()
+
     class Meta:
-        fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category',)
+        fields = ('id', 'name', 'year', 'rating',
+                  'description', 'genre', 'category',)
         model = Title
         read_only = ('id', 'rating',)
 
-    def get_rating(self):
-        title_id = self.context['view'].kwargs.get('title_id')
-        if not Review.objects.filter(title=title_id).exists():
-            return None
-        reviews = Review.objects.filter(title=title_id).all()
-        return reviews.aggregate(Avg('score'))
+    def get_rating(self, obj):
+        rating = obj.reviews.aggregate(Avg('score')).get('score__avg')
+        if not rating:
+            return rating
+        return round(rating, 1)
 
     def create(self, validated_data):
         if 'genre' not in self.initial_data:
@@ -51,19 +82,10 @@ class TitleSerializer(serializers.ModelSerializer):
         return value
 
 
-class CategorySerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = ('name', 'slug',)
-        model = Category
-
-
 class ReviewSerializer(serializers.ModelSerializer):
-
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True,
-        default=serializers.CurrentUserDefault
     )
 
     class Meta:
@@ -72,14 +94,14 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only = ('id',)
 
     def validate(self, data):
-        if self.context['request'].method != 'POST':
-            return data
-
+        request = self.context['request']
         title_id = self.context['view'].kwargs.get('title_id')
+        title = get_object_or_404(Title, pk=title_id)
         author = self.context['request'].user
-        if Review.objects.filter(author=author, title=title_id).exists():
-            raise serializers.ValidationError(
-                'К каждому произведению вы можете написать только 1 отзыв!')
+        if request.method == 'POST':
+            if title.reviews.select_related('title').filter(author=author):
+                raise serializers.ValidationError(
+                    'Можно оставить только 1 отзыв на произведение!')
         return data
 
     def validate_score(self, value):
@@ -95,8 +117,9 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        models = Comment
+        model = Comment
         fields = ('id', 'text', 'author', 'pub_date')
+
 
 class UserSerializer(serializers.ModelSerializer):
 
