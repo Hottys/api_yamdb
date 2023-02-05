@@ -2,8 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from .validators import validate_username
 from api_yamdb.settings import LETTERS_IN_STR
+
+from .validators import validate_username
 
 
 class User(AbstractUser):
@@ -58,6 +59,10 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == self.ADMIN
 
+    @property
+    def is_user(self):
+        return self.role == self.USER
+
     class Meta(AbstractUser.Meta):
         ordering = ['username']
         verbose_name = 'Пользователь'
@@ -90,7 +95,6 @@ class Category(models.Model):
 
 
 class Title(models.Model):
-    '''Поле rating временно опущено.'''
     name = models.CharField(max_length=256)
     year = models.IntegerField()
     description = models.TextField()
@@ -139,8 +143,8 @@ class Review(models.Model):
         ordering = ('-pub_date',)
         constraints = [
             models.UniqueConstraint(
-                fields=('text', 'author',),
-                name='unique_review'
+                fields=('title', 'author',),
+                name='unique_title_author'
             )
         ]
 
