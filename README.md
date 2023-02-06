@@ -103,7 +103,7 @@ GET http://127.0.0.1:8000/api/v1/users/me/
 
 **Клонировать репозиторий и перейти в него в командной строке:**
 ```
-git@github.com:Denis-Krapp/api_final_yatube.git
+git@github.com:Hottys/api_yamdb.git
 ```
 ```
 cd api_yamdb
