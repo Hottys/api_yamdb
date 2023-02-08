@@ -1,11 +1,13 @@
 import csv
 
 from django.core.management.base import BaseCommand
-
 from reviews.models import Category
 
 
 class Command(BaseCommand):
+    """Оптимизировать распаковку не удалось
+
+    Данные не попадают в свои аргументы."""
     help = 'Импорт данных из csv в модель Category'
 
     def add_arguments(self, parser):
