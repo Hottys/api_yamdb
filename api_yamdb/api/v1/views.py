@@ -1,12 +1,12 @@
-from api.filters import TitleFilter
-from api.mixins import CreateListDestroyViewSet, NoPutViewSet
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+
+from api.filters import TitleFilter
+from api.mixins import CreateListDestroyViewSet, NoPutViewSet
 from reviews.models import Category, Genre, Review, Title
 from users.permissions import AdminOrReadOnly, IsAuthorOrModerOrAdmin
-
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitleCreateSerializer, TitleSerializer)
