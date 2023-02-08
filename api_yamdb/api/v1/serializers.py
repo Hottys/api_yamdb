@@ -1,22 +1,17 @@
 import datetime
 
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-
-from reviews.models import (Category, Comment, Genre, GenreTitle, Review,
-                            Title, User)
+from reviews.models import Category, Comment, Genre, GenreTitle, Review, Title
 
 
 class GenreSerializer(serializers.ModelSerializer):
-
     class Meta:
         fields = ('name', 'slug',)
         model = Genre
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
     class Meta:
         fields = ('name', 'slug',)
         model = Category
@@ -37,48 +32,44 @@ class TitleCreateSerializer(serializers.ModelSerializer):
         )
 
     def validate_year(self, value):
+        """Про год выпуска было написано в документации)"""
         year = datetime.date.today().year
         if not value <= year:
-            raise serializers.ValidationError('Проверьте год выпуска!')
+            raise serializers.ValidationError(
+                'Нельзя добавить произведение из будущего!')
         return value
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
-    genre = GenreSerializer(many=True, required=False)
-    rating = serializers.SerializerMethodField()
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(read_only=True, many=True, required=False)
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         fields = ('id', 'name', 'year', 'rating',
                   'description', 'genre', 'category',)
         model = Title
-        read_only = ('id', 'rating',)
+        read_only = ('id', 'rating', 'category', 'genre',)
 
-    def get_rating(self, obj):
-        rating = obj.reviews.aggregate(Avg('score')).get('score__avg')
-        if not rating:
-            return rating
-        return round(rating, 1)
-
-    def create(self, validated_data):
+    def get(self, validated_data):
         if 'genre' not in self.initial_data:
-            title = Title.objects.create(**validated_data)
+            title = Title.objects.get(**validated_data)
             return title
         else:
             genres = validated_data.pop('genre')
-            title = Title.objects.create(**validated_data)
+            title = Title.objects.get(**validated_data)
             for genre in genres:
-                current_genre, status = Genre.objects.get_or_create(
+                current_genre, status = Genre.objects.get(
                     **genre)
-                GenreTitle.objects.create(
+                GenreTitle.objects.get(
                     genre=current_genre, title=title)
             return title
 
     def validate_year(self, value):
-        """Год выпуска не должен быть больше текущего."""
         year = datetime.date.today().year
         if not value <= year:
-            raise serializers.ValidationError('Проверьте год выпуска!')
+            raise serializers.ValidationError(
+                'Нельзя добавить произведение из будущего!')
         return value
 
 
@@ -119,32 +110,3 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'text', 'author', 'pub_date')
-
-
-class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = ("username", "email", "first_name",
-                  "last_name", "bio", "role")
-        model = User
-
-
-class UserEditSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = ("username", "email", "first_name",
-                  "last_name", "bio", "role")
-        model = User
-        read_only_fields = ('role',)
-
-
-class RegisterDataSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = ("username", "email")
-        model = User
-
-
-class TokenSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    confirmation_code = serializers.CharField()
