@@ -9,8 +9,8 @@ User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ("username", "email", "first_name",
-                  "last_name", "bio", "role")
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
         model = User
 
 
@@ -25,7 +25,7 @@ class RegisterDataSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ("username", "email")
+        fields = ('username', 'email')
         model = User
 
     def validate(self, data):
@@ -45,9 +45,9 @@ class RegisterDataSerializer(serializers.ModelSerializer):
             email=data.get('email')
         )
         if not user.exists() and email.exists():
-            raise ValidationError("Недопустимый Email")
+            raise ValidationError('Недопустимый Email')
         if user.exists() and user.get().email != data.get('email'):
-            raise ValidationError("Недопустимый Email")
+            raise ValidationError('Недопустимый Email')
         return data
 
 
