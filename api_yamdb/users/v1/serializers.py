@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from users.validators import validate_username 
+from users.validators import validate_username
 
 User = get_user_model()
 
@@ -16,13 +16,13 @@ class UserSerializer(serializers.ModelSerializer):
 
 class RegisterDataSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
-        max_length=254, 
+        max_length=254,
         required=True
     )
     username = serializers.CharField(
-        max_length=150, 
+        max_length=150,
         required=True,
-        validators=(validate_username,), 
+        validators=(validate_username,),
     )
 
     class Meta:
@@ -42,7 +42,7 @@ class RegisterDataSerializer(serializers.ModelSerializer):
         if not user.exists() and email.exists():
             raise ValidationError("Недопустимый Email")
         if user.exists() and user.get().email != data.get('email'):
-            raise ValidationError("Недопустимый email")
+            raise ValidationError("Недопустимый Email")
         return data
 
 
