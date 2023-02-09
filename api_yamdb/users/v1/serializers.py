@@ -1,8 +1,8 @@
+import re
+
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
-
-from users.validators import validate_username
 
 User = get_user_model()
 
@@ -22,7 +22,6 @@ class RegisterDataSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         max_length=150,
         required=True,
-        validators=(validate_username,),
     )
 
     class Meta:
@@ -30,9 +29,15 @@ class RegisterDataSerializer(serializers.ModelSerializer):
         model = User
 
     def validate(self, data):
-        if data['username'] == 'me':
+        if data['username'].lower() == 'me':
             raise ValidationError(
                 {'Имя пользователя не может быть <me>.'})
+        if re.search(
+            r'^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$', data['username']
+        ) is None:
+            raise ValidationError(
+                ('Недопустимые символы в username!'),
+            )
         user = User.objects.filter(
             username=data.get('username')
         )
