@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from api.mixins import NoPutViewSet
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
@@ -8,9 +7,10 @@ from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from users.permissions import AdminOnly
 
+from users.permissions import AdminOnly
 from api_yamdb.settings import DEFAULT_EMAIL
+from api.mixins import NoPutViewSet
 from .serializers import (RegisterDataSerializer, TokenSerializer,
                           UserSerializer)
 
