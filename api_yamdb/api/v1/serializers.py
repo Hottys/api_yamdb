@@ -32,7 +32,6 @@ class TitleCreateSerializer(serializers.ModelSerializer):
         )
 
     def validate_year(self, value):
-        """Про год выпуска было написано в документации)"""
         year = datetime.date.today().year
         if not value <= year:
             raise serializers.ValidationError(
