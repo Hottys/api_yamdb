@@ -2,9 +2,9 @@ import datetime
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from users.models import User
 
 from api_yamdb.settings import LETTERS_IN_STR
+from users.models import User
 
 
 class Genre(models.Model):
@@ -78,11 +78,12 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews'
     )
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         validators=[
             MinValueValidator(1),
             MaxValueValidator(10)
-        ]
+        ],
+        error_messages={'validators': 'Оценка должна быть от 1 до 10.'}
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
@@ -98,7 +99,7 @@ class Review(models.Model):
         ]
 
     def __str__(self):
-        return self.text
+        return f'{self.text[:LETTERS_IN_STR]}, {self.score}'
 
 
 class Comment(models.Model):
@@ -120,4 +121,4 @@ class Comment(models.Model):
         verbose_name_plural = 'Комментарии'
 
     def __str__(self):
-        return self.text
+        return self.text[:LETTERS_IN_STR]

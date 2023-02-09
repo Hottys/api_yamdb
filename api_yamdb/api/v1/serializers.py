@@ -32,7 +32,6 @@ class TitleCreateSerializer(serializers.ModelSerializer):
         )
 
     def validate_year(self, value):
-        """Про год выпуска было написано в документации)"""
         year = datetime.date.today().year
         if not value <= year:
             raise serializers.ValidationError(
@@ -49,7 +48,7 @@ class TitleSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'year', 'rating',
                   'description', 'genre', 'category',)
         model = Title
-        read_only = ('id', 'rating', 'category', 'genre',)
+        read_only = ('id',)
 
     def get(self, validated_data):
         if 'genre' not in self.initial_data:
@@ -89,10 +88,11 @@ class ReviewSerializer(serializers.ModelSerializer):
         title_id = self.context['view'].kwargs.get('title_id')
         title = get_object_or_404(Title, pk=title_id)
         author = self.context['request'].user
-        if request.method == 'POST':
-            if title.reviews.select_related('title').filter(author=author):
-                raise serializers.ValidationError(
-                    'Можно оставить только 1 отзыв на произведение!')
+        if not request.method == 'POST':
+            return data
+        if title.reviews.filter(author=author).exists():
+            raise serializers.ValidationError(
+                'Можно оставить только 1 отзыв на произведение!')
         return data
 
     def validate_score(self, value):
