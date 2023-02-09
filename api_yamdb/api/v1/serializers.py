@@ -49,7 +49,7 @@ class TitleSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'year', 'rating',
                   'description', 'genre', 'category',)
         model = Title
-        read_only = ('id', 'rating', 'category', 'genre',)
+        read_only = ('id', 'rating',)
 
     def get(self, validated_data):
         if 'genre' not in self.initial_data:
