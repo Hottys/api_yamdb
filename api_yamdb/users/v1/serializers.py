@@ -29,11 +29,11 @@ class RegisterDataSerializer(serializers.ModelSerializer):
         model = User
 
     def validate(self, data):
-        if data['username'] == 'me':
+        if data['username'].lower() == 'me':
             raise ValidationError(
                 {'Имя пользователя не может быть <me>.'})
         if re.search(
-            r'^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$', data['username'].lower()
+            r'^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$', data['username']
         ) is None:
             raise ValidationError(
                 ('Недопустимые символы в username!'),
