@@ -1,39 +1,28 @@
 from django.contrib import admin
+from reviews.models import Category, Comment, Review, Title
 
-from reviews.models import Category, Comment, Review, Title, User
 
-
+@admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug")
-    search_fields = ("name",)
+    list_display = ('name', 'slug')
+    search_fields = ('name',)
 
 
+@admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
-    list_display = ("name", "category", "year", "description")
-    search_fields = ("name", "year")
-    list_filter = ("category",)
+    list_display = ('name', 'category', 'year', 'description')
+    search_fields = ('name', 'year')
+    list_filter = ('category',)
 
 
-class UserAdmin(admin.ModelAdmin):
-    list_display = ("pk", "username", "email", "role", "bio")
-    search_fields = ("username",)
-    list_filter = ("role",)
-    list_editable = ("username", "email", "role", "bio")
-
-
+@admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ("title", "text", "score")
-    search_fields = ("title",)
-    list_filter = ("score",)
+    list_display = ('title', 'text', 'score')
+    search_fields = ('title',)
+    list_filter = ('score',)
 
 
+@admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ("review", "text")
-    search_fields = ("review",)
-
-
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(Title, TitleAdmin)
-admin.site.register(User, UserAdmin)
-admin.site.register(Review, ReviewAdmin)
-admin.site.register(Comment, CommentAdmin)
+    list_display = ('review', 'text')
+    search_fields = ('review',)
