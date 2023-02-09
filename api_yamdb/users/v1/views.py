@@ -17,7 +17,7 @@ from .serializers import (RegisterDataSerializer, TokenSerializer,
 User = get_user_model()
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 def user_register(request):
     serializer = RegisterDataSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -26,8 +26,8 @@ def user_register(request):
     )
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
-        subject="Регистрация",
-        message=f"Ваш код подтверждения: {confirmation_code}",
+        subject='Регистрация',
+        message=f'Ваш код подтверждения: {confirmation_code}',
         from_email=DEFAULT_EMAIL,
         recipient_list=[user.email],
     )
@@ -36,20 +36,20 @@ def user_register(request):
     )
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 def jwt_token(request):
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     user = get_object_or_404(
         User,
-        username=serializer.validated_data.get("username")
+        username=serializer.validated_data.get('username')
     )
     if default_token_generator.check_token(
-        user, serializer.validated_data.get("confirmation_code")
+        user, serializer.validated_data.get('confirmation_code')
     ):
         token = AccessToken.for_user(user)
         return Response(
-            {"token": str(token)}, status=status.HTTP_200_OK
+            {'token': str(token)}, status=status.HTTP_200_OK
         )
     return Response(
         {'confirmation_code': 'Неверный код подтверждения!'},
@@ -68,11 +68,11 @@ class UserViewSet(NoPutViewSet):
 
     @action(
         methods=[
-            "GET",
-            "PATCH",
+            'GET',
+            'PATCH',
         ],
         detail=False,
-        url_path="me",
+        url_path='me',
         permission_classes=[IsAuthenticated],
     )
     def users_own_profile(self, request):
@@ -82,6 +82,6 @@ class UserViewSet(NoPutViewSet):
             partial=True
         )
         serializer.is_valid(raise_exception=True)
-        if request.method == "PATCH":
+        if request.method == 'PATCH':
             serializer.save(role=request.user.role)
         return Response(serializer.data, status=status.HTTP_200_OK)
