@@ -1,9 +1,9 @@
 import datetime
 
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from api_yamdb.settings import LETTERS_IN_STR
 from users.models import User
 
 
@@ -16,7 +16,7 @@ class Genre(models.Model):
         verbose_name_plural = 'Жанры'
 
     def __str__(self):
-        return self.name[:LETTERS_IN_STR]
+        return self.name[:settings.LETTERS_IN_STR]
 
 
 class Category(models.Model):
@@ -28,12 +28,23 @@ class Category(models.Model):
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return self.name[:LETTERS_IN_STR]
+        return self.name[:settings.LETTERS_IN_STR]
 
 
 class Title(models.Model):
     name = models.CharField(max_length=256)
-    year = models.PositiveSmallIntegerField()
+    year = models.PositiveSmallIntegerField(
+        validators=[
+            MinValueValidator(
+                0,
+                message='Год выпуска не может быть отрицательным!'
+            ),
+            MaxValueValidator(
+                datetime.date.today().year,
+                message='Нельзя добавить произведение из будущего!'
+            )
+        ]
+    )
     description = models.TextField(blank=True)
     genre = models.ManyToManyField(Genre, through='GenreTitle')
     category = models.ForeignKey(
@@ -55,7 +66,7 @@ class Title(models.Model):
         ]
 
     def __str__(self):
-        return self.name[:LETTERS_IN_STR]
+        return self.name[:settings.LETTERS_IN_STR]
 
 
 class GenreTitle(models.Model):
@@ -63,7 +74,8 @@ class GenreTitle(models.Model):
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.genre[:LETTERS_IN_STR]} {self.title[:LETTERS_IN_STR]}'
+        return (f'{self.genre[:settings.LETTERS_IN_STR]}'
+                f'{self.title[:settings.LETTERS_IN_STR]}')
 
 
 class Review(models.Model):
@@ -99,7 +111,7 @@ class Review(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.text[:LETTERS_IN_STR]}, {self.score}'
+        return f'{self.text[:settings.LETTERS_IN_STR]}, {self.score}'
 
 
 class Comment(models.Model):
@@ -121,4 +133,4 @@ class Comment(models.Model):
         verbose_name_plural = 'Комментарии'
 
     def __str__(self):
-        return self.text[:LETTERS_IN_STR]
+        return self.text[:settings.LETTERS_IN_STR]
