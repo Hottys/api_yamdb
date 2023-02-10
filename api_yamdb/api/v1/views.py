@@ -18,8 +18,7 @@ from .permissions import AdminOnly, AdminOrReadOnly, IsAuthorOrModerOrAdmin
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegisterDataSerializer,
                           ReviewSerializer, TitleCreateSerializer,
-                          TitleSerializer, TokenSerializer, UserSerializer
-                         )
+                          TitleSerializer, TokenSerializer, UserSerializer)
 
 User = get_user_model()
 
