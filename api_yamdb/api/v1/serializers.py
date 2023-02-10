@@ -19,13 +19,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegisterDataSerializer(serializers.ModelSerializer):
+    # Пробовал не определять поля, но почему-то пайтест не
+    # видит параметр длины из модели юзера и начинает ругаться.
+    # Возможно тесты код иначе проверяют, ну либо я понять не могу
     email = serializers.EmailField(
-        max_length=254,
-        required=True
+        max_length=254
     )
     username = serializers.CharField(
-        max_length=150,
-        required=True,
+        max_length=150
     )
 
     class Meta:
@@ -48,6 +49,9 @@ class RegisterDataSerializer(serializers.ModelSerializer):
         email = User.objects.filter(
             email=data.get('email')
         )
+        # Тут что-бы я не пробовал, тесты падают и требуют
+        # `email` зарегистрированного пользователя и незанятый `username'
+        # должен вернуться ответ со статусом 400.
         if not user.exists() and email.exists():
             raise ValidationError('Недопустимый Email')
         if user.exists() and user.get().email != data.get('email'):

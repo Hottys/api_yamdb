@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -7,6 +8,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
+
+if not SECRET_KEY:
+    print('Ошибка, нет ключа')
+    sys.exit()
 
 DEBUG = False
 
