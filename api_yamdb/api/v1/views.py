@@ -12,14 +12,14 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import Category, Genre, Review, Title
-
 from .filters import TitleFilter
 from .mixins import CreateListDestroyViewSet, NoPutViewSet
 from .permissions import AdminOnly, AdminOrReadOnly, IsAuthorOrModerOrAdmin
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegisterDataSerializer,
                           ReviewSerializer, TitleCreateSerializer,
-                          TitleSerializer, TokenSerializer, UserSerializer)
+                          TitleSerializer, TokenSerializer, UserSerializer
+                         )
 
 User = get_user_model()
 

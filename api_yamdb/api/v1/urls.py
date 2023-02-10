@@ -9,23 +9,28 @@ v1_router = DefaultRouter()
 v1_router.register(
     r'titles',
     TitleViewSet,
-    basename='titles')
+    basename='titles'
+)
 v1_router.register(
     r'genres',
     GenreViewSet,
-    basename='genres')
+    basename='genres'
+)
 v1_router.register(
     r'categories',
     CategoryViewSet,
-    basename='categories')
+    basename='categories'
+)
 v1_router.register(
     r'titles/(?P<title_id>\d+)/reviews',
     ReviewViewSet,
-    basename='reviews')
+    basename='reviews'
+)
 v1_router.register(
     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentViewSet,
-    basename='comments')
+    basename='comments'
+)
 v1_router.register(r'users', UserViewSet, basename='users')
 
 auth_urlpatterns = [

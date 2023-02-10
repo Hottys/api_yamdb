@@ -90,7 +90,8 @@ class TitleCreateSerializer(serializers.ModelSerializer):
         year = datetime.date.today().year
         if not value <= year:
             raise serializers.ValidationError(
-                'Нельзя добавить произведение из будущего!')
+                'Нельзя добавить произведение из будущего!'
+            )
         return value
 
 
@@ -109,7 +110,8 @@ class TitleSerializer(serializers.ModelSerializer):
         year = datetime.date.today().year
         if not value <= year:
             raise serializers.ValidationError(
-                'Нельзя добавить произведение из будущего!')
+                'Нельзя добавить произведение из будущего!'
+            )
         return value
 
 
@@ -133,7 +135,8 @@ class ReviewSerializer(serializers.ModelSerializer):
             return data
         if title.reviews.filter(author=author).exists():
             raise serializers.ValidationError(
-                'Можно оставить только 1 отзыв на произведение!')
+                'Можно оставить только 1 отзыв на произведение!'
+            )
         return data
 
     def validate_score(self, value):
